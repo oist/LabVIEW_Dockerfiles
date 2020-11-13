@@ -1,0 +1,21 @@
+# escape=`
+
+FROM mcr.microsoft.com/windows:1909
+LABEL maintainer="Christian Butcher <christian.butcher@oist.jp>"
+
+# Download NIPM. The URL can be passed as an argument.
+# ARG NIPM_Url="https://download.ni.com/support/nipkg/products/ni-package-manager/installers/NIPackageManager20.1.0.exe"
+ARG NIPM_Url="https://download.ni.com/support/nipkg/products/ni-package-manager/installers/NIPackageManager20.5.0.exe"
+RUN powershell.exe -Command `
+    $ErrorActionPreference = 'Stop'; `
+    Invoke-WebRequest -Uri $env:NIPM_Url -OutFile nipm_installer.exe ; `
+    # Install NIPM
+    Start-Process -wait .\nipm_installer.exe `
+        -ArgumentList '--passive','--accept-eulas','--prevent-reboot' ; `
+    # Remove the installer
+    Remove-Item nipm_installer.exe;
+
+# Add nipkg.exe to the path
+RUN powershell.exe "setx PATH \"%PATH%;C:\Program Files\National Instruments\NI Package Manager\""
+# Prevent package caching.
+RUN nipkg.exe set-config nipkg.cachepackages=false
