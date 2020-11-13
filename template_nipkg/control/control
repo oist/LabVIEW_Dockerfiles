@@ -1,0 +1,10 @@
+Package: <PACKAGENAME>
+Version: <VERSION>
+Architecture: windows_all
+Depends: <DEPENDS_LIST>
+Provides: <PROVIDES_LIST>
+Maintainer: <MAINTAINER>
+Description: Fake package to replace <PACKAGENAME>
+XB-Plugin: file
+XB-VisibleForRuntimeDeployment: no
+XB-DisplayName: <PACKAGENAME> (fake)
