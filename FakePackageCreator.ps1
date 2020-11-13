@@ -3,7 +3,7 @@ param (
 )
 New-Item -ItemType Directory -Force -Path $FeedDirectory | Out-Null
 
-$fake_package_contents = Import-CSV -Delimiter "`t" '.\PackageContents.tsv'
+$fake_package_contents = Join-Path $PSScriptRoot 'PackageContents.tsv' | Import-CSV -Delimiter "`t"
 $Maintainer = "Christian Butcher <christian.butcher@oist.jp>"
 
 function PopulateControlFile {
@@ -21,13 +21,17 @@ function PopulateControlFile {
 		| Set-Content -Path $Path
 }
 
+$template_path = Join-Path $PSScriptRoot 'template_nipkg'
+New-Item -ItemType Directory -Force -Path "C:\temp\fake-nipkgs" | Out-Null
+
 ForEach($pkg in $fake_package_contents)
 {
 	Add-Member -InputObject $pkg -NotePropertyName MAINTAINER -NotePropertyValue $Maintainer
-	Copy-Item -Recurse '.\template_nipkg\' $pkg.PACKAGENAME
-	$PackagePath = Resolve-Path $pkg.PACKAGENAME
+	$PackagePath = Join-Path "C:\temp\fake-nipkgs" $pkg.PACKAGENAME
+	Copy-Item -Recurse $template_path $PackagePath
 	$ControlFilePath = Join-Path $PackagePath 'control\control'
 	PopulateControlFile -Path $ControlFilePath -pkg $pkg
 	nipkg.exe pack $PackagePath $FeedDirectory
-	Remove-Item -Recurse $PackagePath
 }
+
+Remove-Item -Recurse "C:\temp\fake-nipkgs\"
