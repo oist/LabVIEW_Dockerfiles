@@ -1,5 +1,6 @@
 param (
-	$FeedDirectory='.'
+	$FeedDirectory='.\fake-packages',
+	[switch] $Zip
 )
 New-Item -ItemType Directory -Force -Path $FeedDirectory | Out-Null
 
@@ -35,3 +36,10 @@ ForEach($pkg in $fake_package_contents)
 }
 
 Remove-Item -Recurse "C:\temp\fake-nipkgs\"
+
+If($Zip)
+{
+	$ZipFile = '.\FakePackages.zip'
+	Echo "Creating zip file $ZipFile"
+	Compress-Archive -Path $FeedDirectory\* -DestinationPath $ZipFile -Force
+}
