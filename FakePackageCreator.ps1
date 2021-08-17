@@ -1,6 +1,7 @@
 param (
 	$FeedDirectory='.\fake-packages',
-	[switch] $Zip
+	[switch] $Zip,
+	[switch] $CleanCreatedFiles
 )
 New-Item -ItemType Directory -Force -Path $FeedDirectory | Out-Null
 
@@ -42,4 +43,9 @@ If($Zip)
 	$ZipFile = '.\FakePackages.zip'
 	Echo "Creating zip file $ZipFile"
 	Compress-Archive -Path $FeedDirectory\* -DestinationPath $ZipFile -Force
+}
+
+If($CleanCreatedFiles)
+{
+	Remove-Item -Recurse $FeedDirectory
 }
