@@ -1,0 +1,59 @@
+# escape=`
+
+FROM oist/nipm_base:21.0.0 AS labview_prep
+LABEL maintainer="Christian Butcher <christian.butcher@oist.jp>"
+
+# Change the default shell
+SHELL ["powershell"]
+
+# Allow execution of powershell scripts
+# Add the appropriate feeds for 2021, 32-bit.
+COPY AddFeeds_2021-32bit.ps1 AddFeeds.ps1
+RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine ; `
+    .\AddFeeds.ps1 ; `
+    Remove-Item AddFeeds.ps1 ;
+
+# Create and store the fake NIPKGs to satisfy dependencies
+COPY FakePackages.zip FakePackages.zip
+RUN Expand-Archive FakePackages.zip -DestinationPath "C:\Fake_NIPKGs_Feed\Store" ;`
+	nipkg feed-create "C:\Fake_NIPKGs_Feed" "C:\Fake_NIPKGs_Feed\Store"; `
+	nipkg feed-add --name="fake_nipkg_feed" --system "C:\Fake_NIPKGs_Feed"; `
+	nipkg update; `
+	Remove-Item FakePackages.zip
+
+FROM labview_prep AS labview2021_base
+
+RUN nipkg.exe install --accept-eulas -y --include-recommended `
+ni-labview-2021-core-x86-en `
+ni-certificates `
+ni-labview-2021-vi-analyzer-toolkit-x86 `
+ni-labview-2021-aspt-toolkit-x86 `
+ni-sv-toolkit-2021-x86; `
+$LASTEXITCODE
+
+FROM labview2021_base AS labview2021_extended
+
+RUN nipkg.exe install --accept-eulas -y `
+ni-labview-2021-rt-module-x86-en `
+ni-lvrt-21.0.0-crio-labview-support `
+ni-compactrio-21.0.0-realtime-support `
+ni-compactrio-c-series-labview-2021-support-x86 `
+ni-compactrio-labview-2021-support-x86 `
+ni-daqmx `
+ni-daqmx-labview-2021-support-x86
+
+FROM labview2021_extended AS labview2021_visa
+ARG VISA_Url="https://download.ni.com/support/nipkg/products/ni-v/ni-visa/21.0/offline/ni-visa_21.0.0_offline.iso"
+RUN Invoke-WebRequest -Uri $env:VISA_Url -OutFile ni-visa_offline.iso `
+&& Mount-DiskImage -ImagePath "C:\ni-visa_offline.iso" `
+&& 
+
+RUN nipkg.exe install --accept-eulas -y `
+ni-visa `
+ni-visa-labview-2021-support-x86 `
+ni-visa-21.0.0-realtime-bin
+
+# Add the FPGA module?
+#RUN nipkg.exe install --accept-eulas -y `
+#ni-labview-2019-fpga-module-x86-en
+ 
