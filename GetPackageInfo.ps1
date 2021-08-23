@@ -4,7 +4,8 @@ param (
 
 $data = (nipkg info $PackageName | Out-String) -split '(\r?\n){4,}' | Where-Object { $_ -match '\S' } | ForEach-Object {
 	# convert the resulting data into Hashtables and cast to PsCustomObject
-	$lines = ($_ -split '\r?\n' ) | Where-Object { $_ -match '\S' }
+	# Need at least 2 CRLF because some strings are multiline (e.g. see the FPGA module package)
+	$lines = ($_ -split '(\r?\n){2,}' ) | Where-Object { $_ -match '\S' }
 	$hash = @{}
 	foreach ($line in $lines) {
 		$name, $value = ($line -split ':', 2).Trim()
