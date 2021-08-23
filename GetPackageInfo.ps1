@@ -1,8 +1,11 @@
 param (
-	[string]$PackageName
+	[string]$PackageName,
+	[switch]$Installed
 )
 
-$data = (nipkg info $PackageName | Out-String) -split '(\r?\n){4,}' | Where-Object { $_ -match '\S' } | ForEach-Object {
+$operation = If ($Installed) { "info-installed" } Else { "info" }
+
+$data = (nipkg $operation $PackageName | Out-String) -split '(\r?\n){4,}' | Where-Object { $_ -match '\S' } | ForEach-Object {
 	# convert the resulting data into Hashtables and cast to PsCustomObject
 	# Need at least 2 CRLF because some strings are multiline (e.g. see the FPGA module package)
 	$lines = ($_ -split '(\r?\n){2,}' ) | Where-Object { $_ -match '\S' }
