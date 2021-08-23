@@ -1,5 +1,5 @@
 param (
-	[Parameter(Mandatory)][string]$PackageName
+	[string]$PackageName
 )
 
 $data = (nipkg info $PackageName | Out-String) -split '(\r?\n){4,}' | Where-Object { $_ -match '\S' } | ForEach-Object {
