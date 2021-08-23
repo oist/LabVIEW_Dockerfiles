@@ -41,15 +41,21 @@ New-Item -ItemType Directory -Force -Path "C:\temp\fake-nipkgs" | Out-Null
 
 ForEach($pkg in $fake_packages)
 {
-	$PkgsInfo = .\GetPackageInfo $pkg
+	$PkgsInfo = .\GetPackageInfo -PackageName $pkg
 	If ( $null -eq $PkgsInfo) {
 		echo "Unable to find a source package for the name $pkg"
 	} Else {
 		# Here we search explicitly for version 21.<something>
-		$PkgInfo = $PkgsInfo | Where-Object { $_.version -like '21*' }
+		# Exclude any packages where the maintainer is listed as 'Christian*', since these are probably my fakes.
+		$PkgInfo = $PkgsInfo | Where-Object { $_.Maintainer -notlike 'Christian*' -and $_.version -like '21*' }
 		If ( $null -eq $PkgInfo ) {
 			# Couldn't get that version matched, use first result
 			$PkgInfo = $PkgsInfo[0]
+		}
+		If ( $PkgInfo.count -gt 0 ) {
+			# If we still have an array, just choose the first.
+			# Improve this by choosing the highest version...
+			$PkgInfo = $PkgInfo[0]
 		}
 		# Make up a version by adding 80 to the minor version of the original package.
 		$VersionElems = $PkgInfo.Version -split('\.')
