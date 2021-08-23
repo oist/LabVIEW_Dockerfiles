@@ -15,7 +15,8 @@ $fake_packages = @(
 	"ni-serial-runtime",
 	"ni-usblan",
 	"ni-usbvcp",
-	"ni-visa-shared-components"
+	"ni-visa-shared-components",
+	"ni-daqmx-runtime-core"
 )
 
 $Maintainer = "Christian Butcher <christian.butcher@oist.jp>"
