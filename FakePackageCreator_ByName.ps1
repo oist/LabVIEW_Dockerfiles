@@ -40,14 +40,21 @@ New-Item -ItemType Directory -Force -Path "C:\temp\fake-nipkgs" | Out-Null
 
 ForEach($pkg in $fake_packages)
 {
-	# Here we search explicitly for version 21.<something>
-	$PkgsInfo = .\GetPackageInfo $pkg | Where-Object { $_.version -like '21*' }
+	$PkgsInfo = .\GetPackageInfo $pkg
 	If ( $null -eq $PkgsInfo) {
 		echo "Unable to find a source package for the name $pkg"
 	} Else {
-		$PkgInfo = $PkgsInfo[0]
-		# Make up a version like 21.99.<whatever else was in the original version>
-		$TargetVersion = $PkgInfo.Version -replace('21\.[0-9]+\.', '21.99.')
+		# Here we search explicitly for version 21.<something>
+		$PkgInfo = $PkgsInfo | Where-Object { $_.version -like '21*' }
+		If ( $null -eq $PkgInfo ) {
+			# Couldn't get that version matched, use first result
+			$PkgInfo = $PkgsInfo[0]
+		}
+		# Make up a version by adding 80 to the minor version of the original package.
+		$VersionElems = $PkgInfo.Version -split('\.')
+		$MinorVersionPlus80 = [int]($VersionElems[1]) + 80
+		$VersionElems.Item(1) = [string]$MinorVersionPlus80
+		$TargetVersion = $VersionElems -join('.')
 
 		# Create an object with the required keys to create a fake package from the template
 		$FakePkgInfo = @{}
