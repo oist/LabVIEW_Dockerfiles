@@ -1,3 +1,4 @@
 FakePackages.zip
 fake-packages/*
-
+id_rsa
+ssh_config

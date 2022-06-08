@@ -1,0 +1,60 @@
+# escape=`
+FROM mcr.microsoft.com/windows/servercore:2004
+LABEL maintainer="Christian Butcher <christian.butcher@oist.jp>"
+
+# Download NIPM. The URL can be passed as an argument.
+ARG NIPM_Url="https://download.ni.com/support/nipkg/products/ni-package-manager/installers/NIPackageManager21.0.0.exe"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+    $ErrorActionPreference = 'Stop'; `
+    Invoke-WebRequest -Uri $env:NIPM_Url -OutFile nipm_installer.exe ; `
+    # Install NIPM
+    Start-Process -wait .\nipm_installer.exe `
+        -ArgumentList '--passive','--accept-eulas','--prevent-reboot' ; `
+    # Remove the installer
+    Remove-Item nipm_installer.exe;
+
+# Add nipkg.exe to the path
+RUN powershell.exe "setx PATH \"%PATH%;C:\Program Files\National Instruments\NI Package Manager\""
+# Prevent package caching.
+RUN nipkg.exe set-config nipkg.cachepackages=false
+
+# Add OpenJDK-11
+ARG JDK_Url="https://aka.ms/download-jdk/microsoft-jdk-11.0.15-windows-x64.msi"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+	$ErrorActionPreference = 'Stop'; `
+	Invoke-WebRequest -Uri $env:JDK_Url -OutFile openjdk_installer.msi ; `
+	Start-Process -wait .\openjdk_installer.msi -ArgumentList '/passive','/norestart','/qn' ; `
+	Remove-Item openjdk_installer.msi;
+
+# Add 7zip
+ARG 7z_Url="https://www.7-zip.org/a/7z2107-x64.exe"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+	$ErrorActionPreference = 'Stop'; `
+	Invoke-WebRequest -Uri $env:7z_Url -OutFile 7z-installer.exe ; `
+	Start-Process -wait .\7z-installer.exe -ArgumentList '/D=C:\7zip', '/S' ; `
+	Remove-Item 7z-installer.exe ;
+RUN powershell.exe "setx PATH \"%PATH%;C:\7zip\""
+
+# Add Git
+ARG Git_Url_Portable="https://github.com/git-for-windows/git/releases/download/v2.36.1.windows.1/PortableGit-2.36.1-64-bit.7z.exe"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+	$ErrorActionPreference = 'Stop'; `
+	Invoke-WebRequest -Uri $env:Git_Url_Portable -OutFile git-installer.7z.exe ; `
+	Start-Process -wait 7z -ArgumentList 'x', 'git-installer.7z.exe', '-oC:\git' ;`
+	Remove-Item git-installer.7z.exe ;
+RUN powershell.exe "setx PATH \"%PATH%;C:\git\bin;C:\git\usr\bin;C:\git\mingw64\bin""
+
+ADD go-agent.ps1 .
+SHELL ["powershell", "-command"]
+
+#RUN ["java", "-version"]
+RUN ["git", "--version"]
+
+ADD id_rsa C:\Users\ContainerAdministrator\.ssh\id_rsa
+ADD ssh_config C:\Users\ContainerAdministrator\.ssh\config
+
+CMD .\go-agent.ps1
