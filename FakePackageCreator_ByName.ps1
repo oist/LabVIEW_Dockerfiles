@@ -1,23 +1,23 @@
 param (
 	$FeedDirectory='.\fake-packages',
 	[switch] $Zip,
-	[switch] $CleanCreatedFiles
+	[switch] $CleanCreatedFiles,
+	[string] $versionPattern = '21*',
+	[string[]] $fake_packages = @(
+		"ni-cabled-pcie",
+		"ni-controllerdriver",
+		"ni-ede",
+		"ni-pxiplatformservices-runtime",
+		"ni-rio-fpga-driver",
+		"ni-rio-mite",
+		"ni-serial-runtime",
+		"ni-usblan",
+		"ni-usbvcp",
+		"ni-visa-shared-components",
+		"ni-daqmx-runtime-core"
+	)
 )
 New-Item -ItemType Directory -Force -Path $FeedDirectory | Out-Null
-
-$fake_packages = @(
-	"ni-cabled-pcie",
-	"ni-controllerdriver",
-	"ni-ede",
-	"ni-pxiplatformservices-runtime",
-	"ni-rio-fpga-driver",
-	"ni-rio-mite",
-	"ni-serial-runtime",
-	"ni-usblan",
-	"ni-usbvcp",
-	"ni-visa-shared-components",
-	"ni-daqmx-runtime-core"
-)
 
 $Maintainer = "Christian Butcher <christian.butcher@oist.jp>"
 
@@ -47,8 +47,9 @@ ForEach($pkg in $fake_packages)
 		Write-Output "Unable to find a source package for the name $pkg"
 	} Else {
 		# Here we search explicitly for version 21.<something>
-		# Exclude any packages where the maintainer is listed as 'Christian*', since these are probably my fakes.
-		$PkgInfo = $PkgsInfo | Where-Object { $_.Maintainer -notlike 'Christian*' -and $_.version -like '21*' }
+		# Exclude any packages where the maintainer is listed as the maintainer variable,
+		# since these are probably fakes created by this script or similar.
+		$PkgInfo = $PkgsInfo | Where-Object { $_.Maintainer -notlike $Maintainer -and $_.version -like $versionPattern }
 		If ( $null -eq $PkgInfo ) {
 			# Couldn't get that version matched, use first result
 			$PkgInfo = $PkgsInfo[0]
