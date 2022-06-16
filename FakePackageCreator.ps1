@@ -41,7 +41,7 @@ Remove-Item -Recurse "C:\temp\fake-nipkgs\"
 If($Zip)
 {
 	$ZipFile = '.\FakePackages.zip'
-	Echo "Creating zip file $ZipFile"
+	Write-Output "Creating zip file $ZipFile"
 	Compress-Archive -Path $FeedDirectory\* -DestinationPath $ZipFile -Force
 }
 

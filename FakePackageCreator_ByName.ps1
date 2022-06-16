@@ -41,9 +41,10 @@ New-Item -ItemType Directory -Force -Path "C:\temp\fake-nipkgs" | Out-Null
 
 ForEach($pkg in $fake_packages)
 {
+	Write-Output "Processing $pkg"
 	$PkgsInfo = .\GetPackageInfo -PackageName $pkg
 	If ( $null -eq $PkgsInfo) {
-		echo "Unable to find a source package for the name $pkg"
+		Write-Output "Unable to find a source package for the name $pkg"
 	} Else {
 		# Here we search explicitly for version 21.<something>
 		# Exclude any packages where the maintainer is listed as 'Christian*', since these are probably my fakes.
@@ -62,6 +63,7 @@ ForEach($pkg in $fake_packages)
 		$MinorVersionPlus80 = [int]($VersionElems[1]) + 80
 		$VersionElems.Item(1) = [string]$MinorVersionPlus80
 		$TargetVersion = $VersionElems -join('.')
+		Write-Output "Setting version to $TargetVersion"
 
 		# Create an object with the required keys to create a fake package from the template
 		$FakePkgInfo = @{}
@@ -85,8 +87,8 @@ Remove-Item -Recurse "C:\temp\fake-nipkgs\"
 If($Zip)
 {
 	$ZipFile = '.\FakePackages.zip'
-	Echo "Creating zip file $ZipFile"
-	Compress-Archive -Path $FeedDirectory\* -DestinationPath $ZipFile -Force
+	Write-Output "Creating zip file $ZipFile"
+	Compress-Archive -Path $FeedDirectory\* -DestinationPath $ZipFile -Force -Verbose
 }
 
 If($CleanCreatedFiles)
