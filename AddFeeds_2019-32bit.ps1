@@ -25,5 +25,7 @@ $feeds = @(
 
 ForEach($pair in $feeds)
 {
-	nipkg.exe feed-add --name="""$($pair.name)""" --system $($pair.url)
+	$cmd = "nipkg.exe feed-add --name='$($pair.name)' --system $($pair.url)"
+	Write-Output $cmd
+	Invoke-Expression -Command $cmd
 }
