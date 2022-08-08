@@ -48,11 +48,22 @@ RUN powershell.exe -Command `
 	Remove-Item git-installer.7z.exe ;
 RUN powershell.exe "setx PATH \"%PATH%;C:\git\bin;C:\git\usr\bin;C:\git\mingw64\bin""
 
+# Add Powershell 7 (pwsh.exe)
+ARG PWSH_Url_Zip="https://github.com/PowerShell/PowerShell/releases/download/v7.2.5/PowerShell-7.2.5-win-x64.zip"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+	$ErrorActionPreference = 'Stop'; `
+	Invoke-WebRequest -Uri $env:PWSH_Url_Zip -OutFile pwsh.zip ; `
+	Expand-Archive pwsh.zip -DestinationPath 'C:\pwsh\' ; `
+	Remove-Item pwsh.zip ;
+RUN powershell.exe "setx PATH \"%PATH%;C:\pwsh\""
+
 ADD go-agent.ps1 .
 SHELL ["powershell", "-command"]
 
 #RUN ["java", "-version"]
 RUN ["git", "--version"]
+RUN ["pwsh", "-Command '$PSVersionTable'"]
 
 ADD id_rsa C:\Users\ContainerAdministrator\.ssh\id_rsa
 ADD ssh_config C:\Users\ContainerAdministrator\.ssh\config
