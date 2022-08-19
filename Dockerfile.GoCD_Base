@@ -39,7 +39,7 @@ RUN powershell.exe -Command `
 RUN powershell.exe "setx PATH \"%PATH%;C:\7zip\""
 
 # Add Git
-ARG Git_Url_Portable="https://github.com/git-for-windows/git/releases/download/v2.36.1.windows.1/PortableGit-2.36.1-64-bit.7z.exe"
+ARG Git_Url_Portable="https://github.com/git-for-windows/git/releases/download/v2.37.2.windows.2/PortableGit-2.37.2.2-64-bit.7z.exe"
 RUN powershell.exe -Command `
 	$ProgressPreference = 'SilentlyContinue'; `
 	$ErrorActionPreference = 'Stop'; `
@@ -63,7 +63,7 @@ SHELL ["powershell", "-command"]
 
 #RUN ["java", "-version"]
 RUN ["git", "--version"]
-RUN ["pwsh", "-Command '$PSVersionTable'"]
+RUN ["pwsh", "-Command", "$PSVersionTable"]
 
 ADD id_rsa C:\Users\ContainerAdministrator\.ssh\id_rsa
 ADD ssh_config C:\Users\ContainerAdministrator\.ssh\config
