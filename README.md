@@ -9,6 +9,17 @@ Instructions given below in places reference the [GoCD Continuous Delivery syste
 Scripts are written using PowerShell for use on Windows, although should in general be possible to execute using PowerShell Core on non-Windows platforms (untested).\
 At present, testing has been done exclusively on a Windows 10 host.
 
+## Serial Numbers and Activation
+
+To activate LabVIEW, a serial number must be passed as a build argument to the dockerfiles. 
+
+This is shown in the examples in the section describing building the images, but it is important to note that the value passed into the build process will not be hidden - that is, it can be inspected from the image.\
+As a result, you should not use this method to activate LabVIEW if you intend to share the Docker images with people who do not have access to your LabVIEW serial number.
+
+The activation method used here passes the serial number in the manner described by this forum post: [LabVIEW Continuous Integration License? (JeKo's post, #19)](https://forums.ni.com/t5/Continuous-Integration/LabVIEW-Continuous-Integration-License/m-p/4173792/highlight/true#M392). 
+
+If instead of using a serial number you have a volume license, you would need to adapt that part of the dockerfile (or the `activateLabVIEW{,RT}.ps1` files), probably in a style similar to that described here: [Licensing LabVIEW with Docker Images (Felipe Pinheiro's blog)](https://felipekb.com/2021/06/30/licensing-labview-with-docker-images/).
+
 ## Building images for GoCD
 
 To build a suitable image for use with GoCD, run the following (or similar) commands in the host PowerShell terminal, with Docker installed.\
