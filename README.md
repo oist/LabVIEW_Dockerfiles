@@ -39,6 +39,12 @@ The Docker images (built using the files `Dockerfile.2019_32bit` and `Dockerfile
 This is done to allow use with the [GoCD Continuous Delivery] system.\
 If you want to use these images with Jenkins or other CI/CD systems/build orchestrators, then you should modify the Dockerfile.GoCD_Base to remove the `OpenJDK` section (unless you need the Java Development Kit for your other platform) and the `go-agent.ps1` script (which handles agent registration and task allocation). Additionally, the `CMD` line should be removed or modified.
 
+## SSH Keys
+
+The Dockerfile.GoCD_Base dockerfile contains references to the `id_rsa`, `ssh_config` and `github_hosts` files, which for that file to build correctly should exist.\
+However, if the .ssh directory is mounted into the container from the host, then the copied files will be masked, and so those lines could be removed from the dockerfile.
+In the current state, id_rsa and ssh_config must exist in the build context passed with the `docker build` command.
+
 ## Docker Engine contexts
 
 Docker on Windows supports both Windows and Linux images/containers, and containers from both can be run simultaneously.
