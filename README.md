@@ -58,7 +58,7 @@ If the image name for the base image is changed, then the second Dockerfile (`Do
 > docker build -t oist/labview_2019_daqmx_gocd:YYMMDD -t oist/labview_2019_daqmx_gocd:latest -f .\Dockerfile.2019_32bit --target labview2019_base --build-arg LABVIEW_SERIAL_NUMBER="yourserialnumberhere" .
 ```
 
-The combination of these commands will produce two images, one base (`oist/gocd_nipk_base`) and one for 32-bit LabVIEW 2019 with DAQmx but not cRIO (`oist/labview_2019_daqmx_gocd`).\
+The combination of these commands will produce two images, one base (`oist/gocd_nipm_base`) and one for 32-bit LabVIEW 2019 with DAQmx but not cRIO (`oist/labview_2019_daqmx_gocd`).\
 The name of the second image will be used to run containers for building code - see [GoCD specific instructions](./readme_content/GoCD_Specific_Instructions.md) for further details.
 
 ### Testing the built image
