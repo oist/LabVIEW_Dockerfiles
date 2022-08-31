@@ -41,7 +41,7 @@ If instead of using a serial number you have a volume license, you would need to
 A script (`buildAllContainers.ps1`) is included in this repository for convenience. Details about the choices made can be found in comments in that file, but some points are also described below.\
 To use that script, a parameter called `LABVIEW_SERIAL_NUMBER` should be passed, with a string containing your serial number.\
 If you do not provide the flag, you will be prompted when running the script.
-Take care not to write `-LABVIEW_SERIAL_NUMBER="serialnum"` (with an equals sign).
+Take care not to write <code>&#x2011;LABVIEW_SERIAL_NUMBER="serialnum"</code> (with an equals sign).
 ```
 > .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456"
 or 
@@ -75,7 +75,7 @@ From that shell, you can run commands like `g-cli`, `LabVIEWCLI.exe`, or simply 
 ## Changes to build for other platforms
 
 The Docker images (built using the files `Dockerfile.2019_32bit` and `Dockerfile.2019_64bit`) use the image produced by the `Dockerfile.GoCD_Base` as their base image.\
-This is done to allow use with the [GoCD Continuous Delivery] system.\
+This is done to allow use with the [GoCD Continuous Delivery](https://www.gocd.org/) system.\
 If you want to use these images with Jenkins or other CI/CD systems/build orchestrators, then you should modify the Dockerfile.GoCD_Base to remove the `OpenJDK` section (unless you need the Java Development Kit for your other platform) and the `go-agent.ps1` script (which handles agent registration and task allocation). Additionally, the `CMD` line should be removed or modified.
 
 The `buildAllContainers.ps1` script can incorporate these changes by passing the `-Exclude_GoCD` switch:
