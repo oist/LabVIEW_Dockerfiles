@@ -7,7 +7,7 @@ The Dockerfiles can be modified or extended as required to allow the installatio
 Instructions given below in places reference the [GoCD Continuous Delivery system](https://www.gocd.org/), but should be useful generally. Instructions that are specific to GoCD only are provided in [GoCD specific instructions](./readme_content/GoCD_Specific_Instructions.md).
 
 Scripts are written using PowerShell for use on Windows, although should in general be possible to execute using PowerShell Core on non-Windows platforms (untested).\
-At present, testing has been done exclusively on a Windows 10 host.
+At present, testing has been done exclusively on a Windows 10 host with HyperV available.
 
 ## Host OS Requirements
 
@@ -22,6 +22,8 @@ If using process isolation without HyperV, you may need to adjust the FROM line 
 Available tags can be found on the [DockerHub (Windows base OS images)](https://hub.docker.com/_/microsoft-windows-base-os-images) page.
 
 The rest of this README assumes that you have a functioning Windows Docker engine. To test this, you can run commands like those suggested here: [Get started: Run your first Windows container](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/run-your-first-container).
+
+No NI applications or packages are installed onto the host using these images, so installing NIPM or registering feeds in advance is not required.
 
 ## Serial Numbers and Activation
 
