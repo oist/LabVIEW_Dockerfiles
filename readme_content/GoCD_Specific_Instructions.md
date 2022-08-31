@@ -35,6 +35,11 @@ Here a "cluster" is configured, and settings that apply to all containers create
 The cluster settings for the profile used in the GDevCon 2022 presentation are shown below for reference - the named pipe is used to access the host Docker engine.
 The go_server_url value is the IP address of the host from the point of view of the containers, and can be acquired by running `ipconfig /all` and searching for the "(nat)" adapter (using the default names provided by Docker), but might also have no real effect in this configuration. If the server and the agents are not on the same device, then both these settings would be different.
 
+The following PowerShell command also produces the IP address othat adapter, and can be adjusted for other names:
+```
+> (Get-NetIPAddress -InterfaceAlias "vEthernet (nat)" -AddressFamily "IPv4").IPAddress
+```
+
 ![Cluster configuration settings](./gocd_cluster_configuration.png)
 
 The `max_docker_containers` setting can be chosen based on whatever parameter forms the bottleneck in your setup - in my testing, RAM was often the most problematic (each container takes ~1.5-2GB of RAM for my build processes).
@@ -60,3 +65,5 @@ Mounting volumes in this way only worked with my Docker Desktop client in Linux 
 ### Behaviour and usage
 
 Each agent is only used for one build task via this plugin, but the time taken to reclaim the agent after a build finishes can introduce a delay between consecutive builds. This reduces the number of jobs that can be completed in a given time.
+
+A separate plugin is used to publish NIPKG files - for details about that plugin, see its repository at https://github.com/oist/Chakraborty_NIPKG_GoCD.
