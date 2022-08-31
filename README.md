@@ -9,6 +9,20 @@ Instructions given below in places reference the [GoCD Continuous Delivery syste
 Scripts are written using PowerShell for use on Windows, although should in general be possible to execute using PowerShell Core on non-Windows platforms (untested).\
 At present, testing has been done exclusively on a Windows 10 host.
 
+## Host OS Requirements
+
+The key requirement for the host system is that it be able to run Windows Docker containers.\
+The simplest way to set this up on a Windows 10 or 11 host is using Docker Desktop for Windows with HyperV isolation, which also requires the availability of HyperV on the host system.\
+In this case, a wider range of host OS versions and container base images can be used - the requirement is only that the base image be the same or older than the host OS version.
+
+If HyperV is unavailable or undesirable, containers can be run on Windows using "process isolation", but this has much stricter requirements on the host OS - in particular, the images from which your containers run must be based on the same OS version. Further information about this case can be found here: [Docker on Windows without Hyper-V](https://poweruser.blog/docker-on-windows-10-without-hyper-v-a529897ed1cc).\
+This Microsoft documentation page ([Windows container version compatibility](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility?tabs=windows-server-2022%2Cwindows-10-21H1)) lists the possible combinations of Docker Host OS and image OS - each version of Windows Server since 2016 has one matching container base image, but for "Windows Client host OS" (Windows 10, 11), there are fewer options available. Check the linked page for up-to-date information.
+
+If using process isolation without HyperV, you may need to adjust the FROM line in the `Dockerfile.GoCD_Base` dockerfile, in order to match your installed system OS version.\
+Available tags can be found on the [DockerHub (Windows base OS images)](https://hub.docker.com/_/microsoft-windows-base-os-images) page.
+
+The rest of this README assumes that you have a functioning Windows Docker engine. To test this, you can run commands like those suggested here: [Get started: Run your first Windows container](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/run-your-first-container).
+
 ## Serial Numbers and Activation
 
 To activate LabVIEW, a serial number must be passed as a build argument to the dockerfiles. 
