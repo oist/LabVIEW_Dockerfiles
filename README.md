@@ -76,6 +76,11 @@ The Docker images (built using the files `Dockerfile.2019_32bit` and `Dockerfile
 This is done to allow use with the [GoCD Continuous Delivery] system.\
 If you want to use these images with Jenkins or other CI/CD systems/build orchestrators, then you should modify the Dockerfile.GoCD_Base to remove the `OpenJDK` section (unless you need the Java Development Kit for your other platform) and the `go-agent.ps1` script (which handles agent registration and task allocation). Additionally, the `CMD` line should be removed or modified.
 
+The `buildAllContainers.ps1` script can incorporate these changes by passing the `-Exclude_GoCD` switch:
+```
+> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -Exclude_GoCD
+```
+
 ## SSH Keys
 
 SSH keys can be mounted into the container from the host, via the C:\Users\ContainerAdministrator\.ssh directory.\

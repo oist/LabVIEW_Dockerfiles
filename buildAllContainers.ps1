@@ -8,15 +8,22 @@ Param(
   [Parameter(Mandatory)]
   [ValidatePattern("^[0-9A-z]*$")]
   [string]
-  $LABVIEW_SERIAL_NUMBER
+  $LABVIEW_SERIAL_NUMBER,
+
+  [string] $GO_SERVER_URL,
+  [switch] $Exclude_GoCD
 )
 
 # Include or exclude GoCD from the images
-$INCLUDE_GOCD=$true # $false
+$INCLUDE_GOCD=!$Exclude_GoCD
 # Here 'vEthernet (nat)' is the name for the network on which the Windows Docker containers run by default.
 # If your GoCD server is on a different host, set this IP address differently.
 # The URL should end with the port, and then /go (http://<ip-address-or-hostname>:<port>/go)
-$GO_SERVER_URL=(Get-NetIPAddress -InterfaceAlias "vEthernet (nat)" -AddressFamily "IPv4").IPAddress+':8153/go'
+If (! $GO_SERVER_URL) {
+  Write-Verbose "Using Get-NetIPAddress to determine host IP address to use for GoCD Server"
+  $GO_SERVER_URL='http://' + (Get-NetIPAddress -InterfaceAlias "vEthernet (nat)" -AddressFamily "IPv4").IPAddress+':8153/go'
+  Write-Verbose "Setting GO_SERVER_URL = '$GO_SERVER_URL'"
+}
 
 # Set up variables for the tag names. 
 # A 'latest' tag is also added (this is convenient for 'auto-updating' on the build system without changes to configuration),
