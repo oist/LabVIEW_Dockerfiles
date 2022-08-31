@@ -61,7 +61,6 @@ RUN powershell.exe "setx PATH \"%PATH%;C:\pwsh\""
 ADD go-agent.ps1 .
 SHELL ["powershell", "-command"]
 
-#RUN ["java", "-version"]
 RUN ["git", "--version"]
 RUN ["pwsh", "-Command", "$PSVersionTable"]
 

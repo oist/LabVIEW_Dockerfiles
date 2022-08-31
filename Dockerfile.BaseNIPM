@@ -17,3 +17,38 @@ RUN powershell.exe -Command `
 RUN powershell.exe "setx PATH \"%PATH%;C:\Program Files\National Instruments\NI Package Manager\""
 # Prevent package caching.
 RUN nipkg.exe set-config nipkg.cachepackages=false
+
+# Add 7zip
+ARG 7z_Url="https://www.7-zip.org/a/7z2107-x64.exe"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+	$ErrorActionPreference = 'Stop'; `
+	Invoke-WebRequest -Uri $env:7z_Url -OutFile 7z-installer.exe ; `
+	Start-Process -wait .\7z-installer.exe -ArgumentList '/D=C:\7zip', '/S' ; `
+	Remove-Item 7z-installer.exe ;
+RUN powershell.exe "setx PATH \"%PATH%;C:\7zip\""
+
+# Add Git
+ARG Git_Url_Portable="https://github.com/git-for-windows/git/releases/download/v2.37.2.windows.2/PortableGit-2.37.2.2-64-bit.7z.exe"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+	$ErrorActionPreference = 'Stop'; `
+	Invoke-WebRequest -Uri $env:Git_Url_Portable -OutFile git-installer.7z.exe ; `
+	Start-Process -wait 7z -ArgumentList 'x', 'git-installer.7z.exe', '-oC:\git' ;`
+	Remove-Item git-installer.7z.exe ;
+RUN powershell.exe "setx PATH \"%PATH%;C:\git\bin;C:\git\usr\bin;C:\git\mingw64\bin""
+
+# Add Powershell 7 (pwsh.exe)
+ARG PWSH_Url_Zip="https://github.com/PowerShell/PowerShell/releases/download/v7.2.5/PowerShell-7.2.5-win-x64.zip"
+RUN powershell.exe -Command `
+	$ProgressPreference = 'SilentlyContinue'; `
+	$ErrorActionPreference = 'Stop'; `
+	Invoke-WebRequest -Uri $env:PWSH_Url_Zip -OutFile pwsh.zip ; `
+	Expand-Archive pwsh.zip -DestinationPath 'C:\pwsh\' ; `
+	Remove-Item pwsh.zip ;
+RUN powershell.exe "setx PATH \"%PATH%;C:\pwsh\""
+
+SHELL ["powershell", "-command"]
+
+RUN ["git", "--version"]
+RUN ["pwsh", "-Command", "$PSVersionTable"]
