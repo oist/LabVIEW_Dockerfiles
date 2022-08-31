@@ -38,7 +38,8 @@ If instead of using a serial number you have a volume license, you would need to
 
 A script (`buildAllContainers.ps1`) is included in this repository for convenience. Details about the choices made can be found in comments in that file, but some points are also described below.\
 To use that script, a parameter called `LABVIEW_SERIAL_NUMBER` should be passed, with a string containing your serial number.\
-If you do not provide the flag, you will be prompted when running the script
+If you do not provide the flag, you will be prompted when running the script.
+Take care not to write `-LABVIEW_SERIAL_NUMBER="serialnum"` (with an equals sign).
 ```
 > .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456"
 or 

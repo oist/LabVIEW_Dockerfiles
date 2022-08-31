@@ -3,8 +3,12 @@
 # If you want to do that, you can simply copy the commands from here and run them in two separate PowerShell terminals.
 
 # Validate that a serial number was provided
+# The validate pattern here protects against picking up '-LABVIEW_SERIAL_NUMBER="blah"' via positional parameter
 Param(
-  [Parameter(Mandatory)][string]$LABVIEW_SERIAL_NUMBER
+  [Parameter(Mandatory)]
+  [ValidatePattern("^[0-9A-z]*$")]
+  [string]
+  $LABVIEW_SERIAL_NUMBER
 )
 
 # Include or exclude GoCD from the images
