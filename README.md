@@ -32,7 +32,7 @@ As a result, you should not use this method to activate LabVIEW if you intend to
 
 The activation method used here passes the serial number in the manner described by this forum post: [LabVIEW Continuous Integration License? (JeKo's post, #19)](https://forums.ni.com/t5/Continuous-Integration/LabVIEW-Continuous-Integration-License/m-p/4173792/highlight/true#M392). 
 
-If instead of using a serial number you have a volume license, you would need to adapt that part of the dockerfile (or the `activateLabVIEW{,RT}.ps1` files), probably in a style similar to that described here: [Licensing LabVIEW with Docker Images (Felipe Pinheiro's blog)](https://felipekb.com/2021/06/30/licensing-labview-with-docker-images/).
+If instead of using a serial number you have a volume license, you would need to adapt that part of the dockerfile (or the `activateLabVIEW{,_RT}.ps1` files), probably in a style similar to that described here: [Licensing LabVIEW with Docker Images (Felipe Pinheiro's blog)](https://felipekb.com/2021/06/30/licensing-labview-with-docker-images/).
 
 ## Building images for GoCD
 
