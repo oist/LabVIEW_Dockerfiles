@@ -44,11 +44,13 @@ If you do not provide the flag, you will be prompted when running the script.
 Take care not to write <code>&#x2011;LABVIEW_SERIAL_NUMBER="serialnum"</code> (with an equals sign).
 ```
 > .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456"
-or 
+```
+or
+```
 > .\buildAllContainers.ps1 # Will prompt before running commands
 ```
 
-Additionally, the `buildAllContainers.ps1` script by default uses a context called 'windows' - you can either create this as described below in [Docker Engine contexts](#docker-engine-contexts).
+Additionally, the `buildAllContainers.ps1` script by default uses a context called 'windows' - you can either create this as described below in [Docker Engine contexts](#docker-engine-contexts), or pass the `-NoContext` switch to use your current default Docker context.
 
 To build a suitable image for use with GoCD, run the following (or similar) commands in the host PowerShell terminal, with Docker installed.\
 In this example, a context (`-c`) is not used and the Docker engine must be directly set to use Windows containers.\
@@ -65,16 +67,16 @@ The name of the second image will be used to run containers for building code - 
 
 ### Testing the built image
 
-To manually check the behaviour of the built image file, you can instantiate an interactive container from the image using a command like the following:
+To manually check the behaviour of the built image file, you can instantiate a container from the image using a command like the following:
 ```
 docker run -it --rm oist/labview_2019_daqmx_gocd powershell
 ```
-which will start PowerShell in a new instance of the `oist/labview_2019_daqmx_gocd` image.\
-From that shell, you can run commands like `g-cli`, `LabVIEWCLI.exe`, or simply navigate the filesystem and check that the layout is as expected.
+which will start `powershell` in a new interactive (`-i -t`, or `-it`) instance of the `oist/labview_2019_daqmx_gocd` image, with the container removed (`--rm`) after you exit.\
+From that shell, you can run commands like `g-cli`, `LabVIEWCLI.exe` and `git`, or simply navigate the filesystem and check that the layout is as expected.
 
 ## Changes to build for other platforms
 
-The Docker images (built using the files `Dockerfile.2019_32bit` and `Dockerfile.2019_64bit`) use the image produced by the `Dockerfile.GoCD_Base` as their base image.\
+The Docker images built using the files `Dockerfile.2019_32bit` and `Dockerfile.2019_64bit` use the image produced by the `Dockerfile.GoCD_Base` as their base image.\
 This is done to allow use with the [GoCD Continuous Delivery](https://www.gocd.org/) system.\
 If you want to use these images with Jenkins or other CI/CD systems/build orchestrators, then you should modify the Dockerfile.GoCD_Base to remove the `OpenJDK` section (unless you need the Java Development Kit for your other platform) and the `go-agent.ps1` script (which handles agent registration and task allocation). Additionally, the `CMD` line should be removed or modified.
 
@@ -111,7 +113,7 @@ docker context create linux --description "Linux containers via pipe" --default-
 The use of these contexts allows the Docker Desktop client (or equivalent setup) to be left in Linux container mode, and Windows containers/images are accessed by passing `-c windows` for each Docker command.
 This is useful for this repository (especially with reference to GoCD) because the handling of paths works differently for Linux and Windows host setups, and bind-mounting a directory for the storage of produced NIPKG files is much easier if the host system is set to use Linux containers ([see details](./readme_content/GoCD_Specific_Instructions.md)).
 
-More information can be found in [a comment on a Docker roadmap issue](https://github.com/docker/roadmap/issues/79#issuecomment-1002424911) and an article linked by that post ([Docker on Windows without Hyper-V](https://poweruser.blog/docker-on-windows-10-without-hyper-v-a529897ed1cc)).
+More information about contexts can be found in [a comment on a Docker roadmap issue](https://github.com/docker/roadmap/issues/79#issuecomment-1002424911) and an article linked in that post ([Docker on Windows without Hyper-V](https://poweruser.blog/docker-on-windows-10-without-hyper-v-a529897ed1cc)).
 
 ## Fake Packages
 
