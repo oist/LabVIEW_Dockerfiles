@@ -36,8 +36,19 @@ If instead of using a serial number you have a volume license, you would need to
 
 ## Building images for GoCD
 
+A script (`buildAllContainers.ps1`) is included in this repository for convenience. Details about the choices made can be found in comments in that file, but some points are also described below.\
+To use that script, a parameter called `LABVIEW_SERIAL_NUMBER` should be passed, with a string containing your serial number.\
+If you do not provide the flag, you will be prompted when running the script
+```
+> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456"
+or 
+> .\buildAllContainers.ps1 # Will prompt before running commands
+```
+
+Additionally, the `buildAllContainers.ps1` script by default uses a context called 'windows' - you can either create this as described below in [Docker Engine contexts](#docker-engine-contexts).
+
 To build a suitable image for use with GoCD, run the following (or similar) commands in the host PowerShell terminal, with Docker installed.\
-In this example, `context` is not used (see below) and the Docker engine is set to use Windows containers.\
+In this example, a context (`-c`) is not used and the Docker engine must be directly set to use Windows containers.\
 The tags used can be changed to suit your organization, and if the tags (`:tagname`) are not added, then `latest` is used by default.\
 If the image name for the base image is changed, then the second Dockerfile (`Dockerfile.2019_32bit` in the example below) must be updated in the `FROM` line at the top of the file.
 

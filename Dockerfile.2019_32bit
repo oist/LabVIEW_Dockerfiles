@@ -1,6 +1,6 @@
 # escape=`
 
-FROM oist/gocd_nipm_base AS labview_prep
+FROM oist/nipm_base AS labview_prep
 LABEL maintainer="Christian Butcher <christian.butcher@oist.jp>"
 
 # Change the default shell
@@ -102,6 +102,7 @@ COPY InstallDAQmxCore.ps1 InstallDAQmxCore.ps1
 RUN .\InstallDAQmxCore.ps1; `
 	Remove-Item InstallDAQmxCore.ps1;
 
+FROM labview2019_base AS labview2019_base_gocd
 # This is placed at the bottom to allow more easily rebuilding without reinstalling all of LabVIEW.
 COPY go-agent.ps1 .
 ARG GO_SERVER_URL="http://172.25.224.1:8153/go"
@@ -129,18 +130,26 @@ if( $LASTEXITCODE.Equals(-125071) ) { `
 COPY activateLabVIEW_RT.ps1 .
 RUN .\activateLabVIEW_RT.ps1 -Version '19.0000' -SerialNumber $env:LABVIEW_SERIAL_NUMBER
 
+# Add the FPGA module?
+#RUN nipkg.exe install --accept-eulas -y `
+#ni-labview-2019-fpga-module-x86-en
+
+FROM labview2019_extended AS labview2019_extended_gocd
+# This is placed at the bottom to allow more easily rebuilding without reinstalling all of LabVIEW.
+COPY go-agent.ps1 .
+ARG GO_SERVER_URL="http://172.25.224.1:8153/go"
+RUN $ProgressPreference = 'SilentlyContinue';`
+	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent') -OutFile 'agent.jar';`
+	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent-plugins.zip') -OutFile 'agent-plugins.zip';`
+	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/tfs-impl.jar') -OutFile 'tfs-impl.jar'
+
 FROM labview2019_extended AS labview2019_visa
 ARG VISA_Url="https://download.ni.com/support/nipkg/products/ni-v/ni-visa/19.0/offline/ni-visa_19.0.0_offline.iso"
 RUN Invoke-WebRequest -Uri $env:VISA_Url -OutFile ni-visa_offline.iso `
 ; Mount-DiskImage -ImagePath "C:\ni-visa_offline.iso" `
-; 
+;
 
 RUN nipkg.exe install --accept-eulas -y `
 ni-visa `
 ni-visa-labview-2019-support-x86 `
 ni-visa-19.0.0-realtime-bin
-
-# Add the FPGA module?
-#RUN nipkg.exe install --accept-eulas -y `
-#ni-labview-2019-fpga-module-x86-en
- 
