@@ -66,9 +66,8 @@ If you want to use these images with Jenkins or other CI/CD systems/build orches
 
 ## SSH Keys
 
-The Dockerfile.GoCD_Base dockerfile contains references to the `id_rsa`, `ssh_config` and `github_hosts` files, which for that file to build correctly should exist.\
-However, if the .ssh directory is mounted into the container from the host, then the copied files will be masked, and so those lines could be removed from the dockerfile.
-In the current state, id_rsa and ssh_config must exist in the build context passed with the `docker build` command.
+SSH keys can be mounted into the container from the host, via the C:\Users\ContainerAdministrator\.ssh directory.\
+And example of this can be seen in the [GoCD specific instructions](./readme_content/GoCD_Specific_Instructions.md).
 
 ## Docker Engine contexts
 

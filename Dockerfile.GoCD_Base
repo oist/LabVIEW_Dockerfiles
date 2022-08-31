@@ -65,9 +65,4 @@ SHELL ["powershell", "-command"]
 RUN ["git", "--version"]
 RUN ["pwsh", "-Command", "$PSVersionTable"]
 
-# These are only relevant if the .ssh directory is not mounted in from the host.
-ADD id_rsa C:\Users\ContainerAdministrator\.ssh\id_rsa
-ADD ssh_config C:\Users\ContainerAdministrator\.ssh\config
-ADD github_hosts C:\Users\ContainerAdministrator\.ssh\known_hosts
-
 CMD .\go-agent.ps1
