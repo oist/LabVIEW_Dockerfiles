@@ -127,6 +127,7 @@ if( $LASTEXITCODE.Equals(-125071) ) { `
 }
 
 # Activate LabVIEW
+ARG LABVIEW_SERIAL_NUMBER
 COPY activateLabVIEW_RT.ps1 .
 RUN .\activateLabVIEW_RT.ps1 -Version '19.0000' -SerialNumber $env:LABVIEW_SERIAL_NUMBER
 
@@ -143,13 +144,13 @@ RUN $ProgressPreference = 'SilentlyContinue';`
 	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent-plugins.zip') -OutFile 'agent-plugins.zip';`
 	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/tfs-impl.jar') -OutFile 'tfs-impl.jar'
 
-FROM labview2019_extended AS labview2019_visa
-ARG VISA_Url="https://download.ni.com/support/nipkg/products/ni-v/ni-visa/19.0/offline/ni-visa_19.0.0_offline.iso"
-RUN Invoke-WebRequest -Uri $env:VISA_Url -OutFile ni-visa_offline.iso `
-; Mount-DiskImage -ImagePath "C:\ni-visa_offline.iso" `
-;
+# FROM labview2019_extended AS labview2019_visa
+# ARG VISA_Url="https://download.ni.com/support/nipkg/products/ni-v/ni-visa/19.0/offline/ni-visa_19.0.0_offline.iso"
+# RUN Invoke-WebRequest -Uri $env:VISA_Url -OutFile ni-visa_offline.iso `
+# ; Mount-DiskImage -ImagePath "C:\ni-visa_offline.iso" `
+# ;
 
-RUN nipkg.exe install --accept-eulas -y `
-ni-visa `
-ni-visa-labview-2019-support-x86 `
-ni-visa-19.0.0-realtime-bin
+# RUN nipkg.exe install --accept-eulas -y `
+# ni-visa `
+# ni-visa-labview-2019-support-x86 `
+# ni-visa-19.0.0-realtime-bin
