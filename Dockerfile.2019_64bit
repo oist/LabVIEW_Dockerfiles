@@ -110,3 +110,10 @@ RUN Start-Process -Wait '"C:\Program Files\G-CLI\g-cli.exe"' -ArgumentList "--ve
 COPY InstallDAQmxCore.ps1 InstallDAQmxCore.ps1
 RUN .\InstallDAQmxCore.ps1; `
 	Remove-Item InstallDAQmxCore.ps1;
+
+# This is placed at the bottom to allow more easily rebuilding without reinstalling all of LabVIEW.
+COPY go-agent.ps1 .
+ARG GO_SERVER_URL="http://172.25.224.1:8153/go"
+RUN $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent') -OutFile 'agent.jar'
+RUN $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent-plugins.zip') -OutFile 'agent-plugins.zip'
+RUN $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/tfs-impl.jar') -OutFile 'tfs-impl.jar'
