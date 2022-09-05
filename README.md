@@ -57,12 +57,15 @@ To use that script, a parameter called `LABVIEW_SERIAL_NUMBER` should be passed,
 If you do not provide the flag, you will be prompted when running the script.
 Take care not to write <code>&#x2011;LABVIEW_SERIAL_NUMBER="serialnum"</code> (with an equals sign).
 ```
-> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456"
+> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -IncludeGoCD -GO_SERVER_URL "http://my-gocd-server.com/go"
 ```
 or
 ```
 > .\buildAllContainers.ps1 # Will prompt before running commands
 ```
+
+If you do not pass the `-IncludeGoCD` switch, then the images will be built without including the necessary files for use with a GoCD server.
+If you pass `-IncludeGoCD`, but do not provide a `-GO_SERVER_URL` string value, your Docker host will be used (this assumes that the Docker host is also the GoCD server).
 
 Additionally, the `buildAllContainers.ps1` script can make use of a specific [Docker context](#docker-engine-contexts) by passing a `-Context` flag with the name of the desired context, for example:
 ```
@@ -97,9 +100,9 @@ The Docker images built using the files `Dockerfile.2019_32bit` and `Dockerfile.
 This is done to allow use with the [GoCD Continuous Delivery](https://www.gocd.org/) system.\
 If you want to use these images with Jenkins or other CI/CD systems/build orchestrators, then you should modify the Dockerfile.GoCD_Base to remove the `OpenJDK` section (unless you need the Java Development Kit for your other platform) and the `go-agent.ps1` script (which handles agent registration and task allocation). Additionally, the `CMD` line should be removed or modified.
 
-The `buildAllContainers.ps1` script can incorporate these changes by passing the `-Exclude_GoCD` switch:
+The `buildAllContainers.ps1` script will incorporate these changes by simply not passing the `-IncludeGoCD` switch:
 ```
-> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -Exclude_GoCD
+> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" # Don't pass -IncludeGoCD
 ```
 
 ## SSH Keys
