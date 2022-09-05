@@ -37,7 +37,7 @@ Adding a static DNS value to your Docker engine configuration might fix this - u
 Add `"dns": ["8.8.8.8"]` or similar to allow access using the default (`nat`) network.
 See [StackOverflow: Not able to access internet inside docker windows container](https://stackoverflow.com/questions/59766135/not-able-to-access-internet-inside-docker-windows-container) for more details.
 
-Alternatively, you can pass the `--network "Default Switch"` argument to your Docker build commands, but this would require editing the build commands (and, if you use it, the `buildAllContainers.ps1` script).
+Alternatively, you can pass the `--network "Default Switch"` argument to your Docker build commands, but this would require editing the build commands (and, if you use it, the `buildAllImages.ps1` script).
 
 ## Serial Numbers and Activation
 
@@ -52,29 +52,29 @@ If instead of using a serial number you have a volume license, you would need to
 
 ## Building images for GoCD
 
-A script (`buildAllContainers.ps1`) is included in this repository for convenience. Details about the choices made can be found in comments in that file, but some points are also described below.\
+A script (`buildAllImages.ps1`) is included in this repository for convenience. Details about the choices made can be found in comments in that file, but some points are also described below.\
 To use that script, a parameter called `LABVIEW_SERIAL_NUMBER` should be passed, with a string containing your serial number.\
 If you do not provide the flag, you will be prompted when running the script.
 Take care not to write <code>&#x2011;LABVIEW_SERIAL_NUMBER="serialnum"</code> (with an equals sign).
 ```
-> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -IncludeGoCD -GO_SERVER_URL "http://my-gocd-server.com/go"
+> .\buildAllImages.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -IncludeGoCD -GO_SERVER_URL "http://my-gocd-server.com/go"
 ```
 or
 ```
-> .\buildAllContainers.ps1 # Will prompt before running commands
+> .\buildAllImages.ps1 # Will prompt before running commands
 ```
 
 If you do not pass the `-IncludeGoCD` switch, then the images will be built without including the necessary files for use with a GoCD server.
 If you pass `-IncludeGoCD`, but do not provide a `-GO_SERVER_URL` string value, your Docker host will be used (this assumes that the Docker host is also the GoCD server).
 
-Additionally, the `buildAllContainers.ps1` script can make use of a specific [Docker context](#docker-engine-contexts) by passing a `-Context` flag with the name of the desired context, for example:
+Additionally, the `buildAllImages.ps1` script can make use of a specific [Docker context](#docker-engine-contexts) by passing a `-Context` flag with the name of the desired context, for example:
 ```
-> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -Context windows
+> .\buildAllImages.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -Context windows
 ```
 This allows you to run the Docker engine in Linux containers mode but still build for the Windows context.
 
 
-### Building without the buildAllContainers.ps1 script
+### Building without the buildAllImages.ps1 script
 To build a suitable image for use with GoCD, run the following (or similar) commands in the host PowerShell terminal, with Docker installed.\
 In this example, a context (`-c`) is not used and the Docker engine must be directly set to use Windows containers.\
 The tags used can be changed to suit your organization, and if the tags (`:tagname`) are not added, then `latest` is used by default.\
@@ -102,9 +102,9 @@ The Docker images built using the files `Dockerfile.2019_32bit` and `Dockerfile.
 This is done to allow use with the [GoCD Continuous Delivery](https://www.gocd.org/) system.\
 If you want to use these images with Jenkins or other CI/CD systems/build orchestrators, then you should modify the Dockerfile.GoCD_Base to remove the `OpenJDK` section (unless you need the Java Development Kit for your other platform) and the `go-agent.ps1` script (which handles agent registration and task allocation). Additionally, the `CMD` line should be removed or modified.
 
-The `buildAllContainers.ps1` script will incorporate these changes by simply not passing the `-IncludeGoCD` switch:
+The `buildAllImages.ps1` script will incorporate these changes by simply not passing the `-IncludeGoCD` switch:
 ```
-> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" # Don't pass -IncludeGoCD
+> .\buildAllImages.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" # Don't pass -IncludeGoCD
 ```
 
 ## SSH Keys
