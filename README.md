@@ -73,6 +73,8 @@ Additionally, the `buildAllContainers.ps1` script can make use of a specific [Do
 ```
 This allows you to run the Docker engine in Linux containers mode but still build for the Windows context.
 
+
+### Building without the buildAllContainers.ps1 script
 To build a suitable image for use with GoCD, run the following (or similar) commands in the host PowerShell terminal, with Docker installed.\
 In this example, a context (`-c`) is not used and the Docker engine must be directly set to use Windows containers.\
 The tags used can be changed to suit your organization, and if the tags (`:tagname`) are not added, then `latest` is used by default.\
