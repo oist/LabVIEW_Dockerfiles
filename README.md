@@ -25,6 +25,20 @@ The rest of this README assumes that you have a functioning Windows Docker engin
 
 No NI applications or packages are installed onto the host using these images, so installing NIPM or registering feeds in advance is not required.
 
+### Windows Container internet connectivity
+If when attempting to build containers you receive errors about ni.com being inaccessible, it may be that your networking configuration for Docker is not allowing connection to the internet from within the containers. You can check this by running a command like
+```
+> docker run -it --rm mcr.microsoft.com/windows/servercore:2004 cmd
+C:\> ping www.ni.com
+```
+If you receive a timeout, then either NI.com is down, or your Docker engine is blocking internet access from within the containers (probably more likely).
+
+Adding a static DNS value to your Docker engine configuration might fix this - under the settings page of Docker Desktop (gear icon near top-right on Windows), the "Docker Engine" tab contains a JSON file.
+Add `"dns": ["8.8.8.8"]` or similar to allow access using the default (`nat`) network.
+See [StackOverflow: Not able to access internet inside docker windows container](https://stackoverflow.com/questions/59766135/not-able-to-access-internet-inside-docker-windows-container) for more details.
+
+Alternatively, you can pass the `--network "Default Switch"` argument to your Docker build commands, but this would require editing the build commands (and, if you use it, the `buildAllContainers.ps1` script).
+
 ## Serial Numbers and Activation
 
 To activate LabVIEW, a serial number must be passed as a build argument to the dockerfiles. 
@@ -66,7 +80,6 @@ The combination of these commands will produce two images, one base (`oist/gocd_
 The name of the second image will be used to run containers for building code - see [GoCD specific instructions](./readme_content/GoCD_Specific_Instructions.md) for further details.
 
 ### Testing the built image
-
 To manually check the behaviour of the built image file, you can instantiate a container from the image using a command like the following:
 ```
 docker run -it --rm oist/labview_2019_daqmx_gocd powershell
@@ -134,7 +147,6 @@ The use of this script is shown in the Dockerfiles, which create a new NIPM feed
 
 
 ### DAQmx
-
 DAQmx is a special case... Although `ni-daqmx` can be installed using the above method to create a fake `ni-daqmx-runtime-core` package, if this approach is followed without further action, then the `nilvaiu.dll` file is not installed, and attempts to build code which depends on this library fail (as an aside, they will build for cRIO... but not for Windows).
 
 It may be the case that the creation of an empty and suitably named file would be sufficient to solve this issue, but that has not been tested for this repository.\
