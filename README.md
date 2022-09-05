@@ -64,8 +64,10 @@ or
 > .\buildAllImages.ps1 # Will prompt before running commands
 ```
 
-If you do not pass the `-IncludeGoCD` switch, then the images will be built without including the necessary files for use with a GoCD server.
-If you pass `-IncludeGoCD`, but do not provide a `-GO_SERVER_URL` string value, your Docker host will be used (this assumes that the Docker host is also the GoCD server).
+If you do not pass the `-IncludeGoCD` switch, then the images will be built without including the necessary files for use with a GoCD server.\
+If you pass `-IncludeGoCD`, but do not provide a `-GO_SERVER_URL` string value, your Docker host will be used (this assumes that the Docker host is also the GoCD server).\
+To build images for use with GoCD, but without a GoCD Server available at build time, you can pass `-SkipGoCDConnection`.
+This will skip the downloading of the agent.jar and supporting files, which will then be downloaded from the server on the start of each elastic agent (if you do not pass this flag, the current versions on the server are built into the image, and are only downloaded again if the server version changes - in which case, the behaviour is the same as if `-SkipGoCDConnection` _had_ been passed - the new version will be downloaded on every container start until the images are rebuilt with the new version files).
 
 Additionally, the `buildAllImages.ps1` script can make use of a specific [Docker context](#docker-engine-contexts) by passing a `-Context` flag with the name of the desired context, for example:
 ```

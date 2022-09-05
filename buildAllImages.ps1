@@ -15,8 +15,18 @@ Param(
 
   # Include or exclude GoCD from the images (default is excluded)
   [switch] $IncludeGoCD,
+  [switch] $SkipGoCDConnection, # See below
   [string] $GO_SERVER_URL
 )
+
+# SkipGoCDConnection is intended for use when a GoCD server is not available at image build-time,
+# but the images should still contain the go-agent and JVM to run it.
+# In this case, the tags generated match those expected for use with GoCD, but the .jar files are
+# not downloaded. In this case, the elastic agents (containers from these images) will need to download
+# the JAR files and agent-plugins.zip file on every start. This makes the agents seem slower to start.
+# The GoCD Server used to download these files does not need to be the same as the one that will be used
+# for CI/CD, but should be the same version and have the same installed plugins to avoid needing to
+# update on every call.
 
 # Here 'vEthernet (nat)' is the name for the network on which the Windows Docker containers run by default.
 # If your GoCD server is on a different host, set this IP address differently.
@@ -53,7 +63,7 @@ If($process.ExitCode -ne '0') {
 
 # Build the 32-bit LabVIEW image, without cRIO support
 # The image build above is automatically used (because of the FROM line in the Dockerfile).
-$TARGET_LV32_BASE = If ($IncludeGoCD) {'labview2019_base_gocd'} Else {'labview2019_base'}
+$TARGET_LV32_BASE = If ($IncludeGoCD -and !$SkipGoCDConnection) {'labview2019_base_gocd'} Else {'labview2019_base'}
 $LV32_BASE_TAGNAME = If ($IncludeGoCD) {'labview_2019_daqmx_gocd'} Else {'labview_2019_daqmx'}
 $process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
   "$CONTEXT_FLAG",`
@@ -73,7 +83,7 @@ If($process.ExitCode -ne '0') {
 
 # Build the 32-bit LabVIEW image with cRIO support
 # This uses a cached build of the 32-bit image built above, so if parallelizing, still do this in series after the 32-bit build.
-$TARGET_LV32_CRIO = If ($IncludeGoCD) {'labview2019_extended_gocd'} Else {'labview2019_extended'}
+$TARGET_LV32_CRIO = If ($IncludeGoCD -and !$SkipGoCDConnection) {'labview2019_extended_gocd'} Else {'labview2019_extended'}
 $LV32_CRIO_TAGNAME = If ($IncludeGoCD) {'labview_2019_daqmx_crio_gocd'} Else {'labview_2019_daqmx_crio'}
 $process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
   "$CONTEXT_FLAG",`
@@ -93,7 +103,7 @@ If($process.ExitCode -ne '0') {
 
 # Build the 64-bit LabVIEW image
 # This could be done at the same time as the above builds separately to speed up the process
-$TARGET_LV64_BASE = If ($IncludeGoCD) {'labview2019_64_gocd'} Else {'labview2019_base_64'}
+$TARGET_LV64_BASE = If ($IncludeGoCD -and !$SkipGoCDConnection) {'labview2019_64_gocd'} Else {'labview2019_base_64'}
 $LV64_BASE_TAGNAME = If ($IncludeGoCD) {'labview_2019_64_daqmx_gocd'} Else {'labview_2019_64_daqmx'}
 $process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
   "$CONTEXT_FLAG",`
