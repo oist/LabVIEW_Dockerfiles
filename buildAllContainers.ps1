@@ -33,7 +33,7 @@ $ORG_TAG_NAME='oist'
 $TAG_VERSION=(Get-Date -Format 'yyMMdd')
 
 # Comment out if no context flag is required, or change if you have a different context name
-$CONTEXT_FLAG = If ($NoContext) {''} Else {"-c windows"}
+$CONTEXT_FLAG = If ($NoContext) {' '} Else {"-c windows"}
 
 # Build the base image for GoCD
 $DOCKERFILE_BASE = If ($INCLUDE_GOCD) {'.\Dockerfile.GoCD_Base'} Else {'.\Dockerfile.BaseNIPM'}
