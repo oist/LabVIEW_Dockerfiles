@@ -52,3 +52,6 @@ SHELL ["powershell", "-command"]
 
 RUN ["git", "--version"]
 RUN ["pwsh", "-Command", "$PSVersionTable"]
+
+# This is added relating to https://stackoverflow.com/questions/21277806/fatal-early-eof-fatal-index-pack-failed
+RUN ["git", "config", "--global", "core.compression", "0"]
