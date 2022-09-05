@@ -21,7 +21,7 @@ This Microsoft documentation page ([Windows container version compatibility](htt
 If using process isolation without HyperV, you may need to adjust the FROM line in the `Dockerfile.GoCD_Base` dockerfile, in order to match your installed system OS version.\
 Available tags can be found on the [DockerHub (Windows base OS images)](https://hub.docker.com/_/microsoft-windows-base-os-images) page.
 
-The rest of this README assumes that you have a functioning Windows Docker engine. To test this, you can run commands like those suggested here: [Get started: Run your first Windows container](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/run-your-first-container).
+The rest of this README assumes that you have a functioning Windows Docker engine. To test this, you can run commands like those suggested here: [Get started: Run your first Windows container](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/run-your-first-container). Note that as of the time of writing this, the first example on that page uses `nanoserver:ltsc2022`, which requires Windows 10 21H1 or newer. If you are using an older Windows build (such as 20H2, or 2004), then you could replace this reference with an older image of nanoserver, for example `mcr.microsoft.com/windows/nanoserver:ltsc2019`.
 
 No NI applications or packages are installed onto the host using these images, so installing NIPM or registering feeds in advance is not required.
 
