@@ -37,7 +37,7 @@ function PopulateControlFile {
 }
 
 $template_path = Join-Path $PSScriptRoot 'template_nipkg'
-New-Item -ItemType Directory -Force -Path "C:\temp\fake-nipkgs" | Out-Null
+New-Item -ItemType Directory -Force -Path "C:\fake-nipkgs" | Out-Null
 
 ForEach($pkg in $fake_packages)
 {
@@ -75,7 +75,7 @@ ForEach($pkg in $fake_packages)
 		$FakePkgInfo['Provides_List'] = $PkgInfo.Provides
 
 		# Create the fake package
-		$PackagePath = Join-Path "C:\temp\fake-nipkgs" $FakePkgInfo.PackageName
+		$PackagePath = Join-Path "C:\fake-nipkgs" $FakePkgInfo.PackageName
 		Copy-Item -Recurse $template_path $PackagePath
 		$ControlFilePath = Join-Path $PackagePath 'control\control'
 		PopulateControlFile -Path $ControlFilePath -pkg $FakePkgInfo
@@ -83,7 +83,7 @@ ForEach($pkg in $fake_packages)
 	}
 }
 
-Remove-Item -Recurse "C:\temp\fake-nipkgs\"
+Remove-Item -Recurse "C:\fake-nipkgs\"
 
 If($Zip)
 {

@@ -48,3 +48,4 @@ $DAQMX_MSI_FILES | ForEach-Object {
 }
 
 Remove-Item -Recurse -Force data
+Remove-Item "*_installLog.txt"

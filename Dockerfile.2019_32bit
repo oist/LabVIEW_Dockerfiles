@@ -68,7 +68,8 @@ if( $LASTEXITCODE.Equals(-125071) ) { `
 # Activate LabVIEW
 ARG LABVIEW_SERIAL_NUMBER
 COPY activateLabVIEW.ps1 .
-RUN .\activateLabVIEW.ps1 -Version '19.0001' -SerialNumber $env:LABVIEW_SERIAL_NUMBER
+RUN .\activateLabVIEW.ps1 -Version '19.0001' -SerialNumber $env:LABVIEW_SERIAL_NUMBER; `
+	Remove-Item activateLabVIEW.ps1
 
 # Copy an INI file to enable VI Server
 ARG INI_Path="C:\Program Files (x86)\National Instruments\LabVIEW 2019\LabVIEW.ini"
@@ -129,7 +130,8 @@ if( $LASTEXITCODE.Equals(-125071) ) { `
 # Activate LabVIEW
 ARG LABVIEW_SERIAL_NUMBER
 COPY activateLabVIEW_RT.ps1 .
-RUN .\activateLabVIEW_RT.ps1 -Version '19.0000' -SerialNumber $env:LABVIEW_SERIAL_NUMBER
+RUN .\activateLabVIEW_RT.ps1 -Version '19.0000' -SerialNumber $env:LABVIEW_SERIAL_NUMBER; `
+	Remove-Item activateLabVIEW_RT.ps1
 
 # Add the FPGA module?
 #RUN nipkg.exe install --accept-eulas -y `
