@@ -37,19 +37,24 @@ $CONTEXT_FLAG = If ($NoContext) {' '} Else {"-c windows"}
 
 # Build the base image for GoCD
 $DOCKERFILE_BASE = If ($INCLUDE_GOCD) {'.\Dockerfile.GoCD_Base'} Else {'.\Dockerfile.BaseNIPM'}
-Start-Process -Wait docker -NoNewWindow -ArgumentList `
+$process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
   "$CONTEXT_FLAG",`
   "build",`
   "-t $ORG_TAG_NAME/nipm_base:$TAG_VERSION",`
   "-t $ORG_TAG_NAME/nipm_base:latest",`
   "-f $DOCKERFILE_BASE",`
   "."
+)
+If($process.ExitCode -ne '0') {
+  Write-Verbose ("Exiting because the base image build returned a non-zero exit code (" + $process.ExitCode  + ").")
+  Exit $process.ExitCode
+}
 
 # Build the 32-bit LabVIEW image, without cRIO support
 # The image build above is automatically used (because of the FROM line in the Dockerfile).
 $TARGET_LV32_BASE = If ($INCLUDE_GOCD) {'labview2019_base_gocd'} Else {'labview2019_base'}
 $LV32_BASE_TAGNAME = If ($INCLUDE_GOCD) {'labview_2019_daqmx_gocd'} Else {'labview_2019_daqmx'}
-Start-Process -Wait docker -NoNewWindow -ArgumentList `
+$process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
   "$CONTEXT_FLAG",`
   "build",`
   "-t $ORG_TAG_NAME/${LV32_BASE_TAGNAME}:$TAG_VERSION",`
@@ -59,12 +64,17 @@ Start-Process -Wait docker -NoNewWindow -ArgumentList `
   "--build-arg LABVIEW_SERIAL_NUMBER=$LABVIEW_SERIAL_NUMBER",`
   "--build-arg GO_SERVER_URL=$GO_SERVER_URL",`
   "."
+)
+If($process.ExitCode -ne '0') {
+  Write-Verbose ("Exiting because the 32-bit image build returned a non-zero exit code (" + $process.ExitCode  + ").")
+  Exit $process.ExitCode
+}
 
 # Build the 32-bit LabVIEW image with cRIO support
 # This uses a cached build of the 32-bit image built above, so if parallelizing, still do this in series after the 32-bit build.
 $TARGET_LV32_CRIO = If ($INCLUDE_GOCD) {'labview2019_extended_gocd'} Else {'labview2019_extended'}
 $LV32_CRIO_TAGNAME = If ($INCLUDE_GOCD) {'labview_2019_daqmx_crio_gocd'} Else {'labview_2019_daqmx_crio'}
-Start-Process -Wait docker -NoNewWindow -ArgumentList `
+$process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
   "$CONTEXT_FLAG",`
   "build",`
   "-t $ORG_TAG_NAME/${LV32_CRIO_TAGNAME}:$TAG_VERSION",`
@@ -74,12 +84,17 @@ Start-Process -Wait docker -NoNewWindow -ArgumentList `
   "--build-arg LABVIEW_SERIAL_NUMBER=$LABVIEW_SERIAL_NUMBER",`
   "--build-arg GO_SERVER_URL=$GO_SERVER_URL",`
   "."
+)
+If($process.ExitCode -ne '0') {
+  Write-Verbose ("Exiting because the cRIO image build returned a non-zero exit code (" + $process.ExitCode  + ").")
+  Exit $process.ExitCode
+}
 
 # Build the 64-bit LabVIEW image
 # This could be done at the same time as the above builds separately to speed up the process
 $TARGET_LV64_BASE = If ($INCLUDE_GOCD) {'labview2019_64_gocd'} Else {'labview2019_base_64'}
 $LV64_BASE_TAGNAME = If ($INCLUDE_GOCD) {'labview_2019_64_daqmx_gocd'} Else {'labview_2019_64_daqmx'}
-Start-Process -Wait docker -NoNewWindow -ArgumentList `
+$process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
   "$CONTEXT_FLAG",`
   "build",`
   "-t $ORG_TAG_NAME/${LV64_BASE_TAGNAME}:$TAG_VERSION",`
@@ -89,3 +104,8 @@ Start-Process -Wait docker -NoNewWindow -ArgumentList `
   "--build-arg LABVIEW_SERIAL_NUMBER=$LABVIEW_SERIAL_NUMBER",`
   "--build-arg GO_SERVER_URL=$GO_SERVER_URL",`
   "."
+)
+If($process.ExitCode -ne '0') {
+  Write-Verbose ("Exiting because the 64-bit image build returned a non-zero exit code (" + $process.ExitCode  + ").")
+  Exit $process.ExitCode
+}
