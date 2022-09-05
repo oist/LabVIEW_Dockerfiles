@@ -64,7 +64,11 @@ or
 > .\buildAllContainers.ps1 # Will prompt before running commands
 ```
 
-Additionally, the `buildAllContainers.ps1` script by default uses a context called 'windows' - you can either create this as described below in [Docker Engine contexts](#docker-engine-contexts), or pass the `-NoContext` switch to use your current default Docker context.
+Additionally, the `buildAllContainers.ps1` script can make use of a specific [Docker context](#docker-engine-contexts) by passing a `-Context` flag with the name of the desired context, for example:
+```
+> .\buildAllContainers.ps1 -LABVIEW_SERIAL_NUMBER "A123B456" -Context windows
+```
+This allows you to run the Docker engine in Linux containers mode but still build for the Windows context.
 
 To build a suitable image for use with GoCD, run the following (or similar) commands in the host PowerShell terminal, with Docker installed.\
 In this example, a context (`-c`) is not used and the Docker engine must be directly set to use Windows containers.\

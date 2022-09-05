@@ -12,7 +12,7 @@ Param(
 
   [string] $GO_SERVER_URL,
   [switch] $Exclude_GoCD,
-  [switch] $NoContext
+  [string] $Context
 )
 
 # Include or exclude GoCD from the images
@@ -33,7 +33,7 @@ $ORG_TAG_NAME='oist'
 $TAG_VERSION=(Get-Date -Format 'yyMMdd')
 
 # Comment out if no context flag is required, or change if you have a different context name
-$CONTEXT_FLAG = If ($NoContext) {' '} Else {"-c windows"}
+$CONTEXT_FLAG = If ($Context) {"-c $Context"} Else {" "}
 
 # Build the base image for GoCD
 $DOCKERFILE_BASE = If ($INCLUDE_GOCD) {'.\Dockerfile.GoCD_Base'} Else {'.\Dockerfile.BaseNIPM'}
