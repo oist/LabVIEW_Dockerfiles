@@ -104,6 +104,9 @@ RUN .\InstallDAQmxCore.ps1; `
 	Remove-Item InstallDAQmxCore.ps1;
 
 FROM labview2019_base AS labview2019_base_gocd
+# Allow the startup of ssh-agent in the image without enabling every run.
+RUN Get-Service ssh-agent | Set-Service -StartupType Manual
+
 # This is placed at the bottom to allow more easily rebuilding without reinstalling all of LabVIEW.
 COPY go-agent.ps1 .
 ARG GO_SERVER_URL="http://172.25.224.1:8153/go"
@@ -138,6 +141,9 @@ RUN .\activateLabVIEW_RT.ps1 -Version '19.0000' -SerialNumber $env:LABVIEW_SERIA
 #ni-labview-2019-fpga-module-x86-en
 
 FROM labview2019_extended AS labview2019_extended_gocd
+# Allow the startup of ssh-agent in the image without enabling every run.
+RUN Get-Service ssh-agent | Set-Service -StartupType Manual
+
 # This is placed at the bottom to allow more easily rebuilding without reinstalling all of LabVIEW.
 COPY go-agent.ps1 .
 ARG GO_SERVER_URL="http://172.25.224.1:8153/go"
