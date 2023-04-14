@@ -11,6 +11,9 @@ Param(
   [string]
   $LABVIEW_SERIAL_NUMBER,
 
+  # [ValidateSet("2019", "2021")]
+  # [string] $year,
+
   [string] $Context,
 
   # Include or exclude GoCD from the images (default is excluded)
@@ -61,62 +64,69 @@ If($process.ExitCode -ne '0') {
   Exit $process.ExitCode
 }
 
-# Build the 32-bit LabVIEW image, without cRIO support
-# The image build above is automatically used (because of the FROM line in the Dockerfile).
-$TARGET_LV32_BASE = If ($IncludeGoCD -and !$SkipGoCDConnection) {'labview2019_base_gocd'} Else {'labview2019_base'}
-$LV32_BASE_TAGNAME = If ($IncludeGoCD) {'labview_2019_daqmx_gocd'} Else {'labview_2019_daqmx'}
-$process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
-  "$CONTEXT_FLAG",`
-  "build",`
-  "-t $ORG_TAG_NAME/${LV32_BASE_TAGNAME}:$TAG_VERSION",`
-  "-t $ORG_TAG_NAME/${LV32_BASE_TAGNAME}:latest",`
-  "-f .\Dockerfile.2019_32bit",`
-  "--target $TARGET_LV32_BASE",`
-  "--build-arg LABVIEW_SERIAL_NUMBER=$LABVIEW_SERIAL_NUMBER",`
-  "--build-arg GO_SERVER_URL=$GO_SERVER_URL",`
-  "."
-)
-If($process.ExitCode -ne '0') {
-  Write-Verbose ("Exiting because the 32-bit image build returned a non-zero exit code (" + $process.ExitCode  + ").")
-  Exit $process.ExitCode
+$TARGET_SUFFIX = If ($IncludeGoCD -and !$SkipGoCDConnection) { "_gocd" } Else { "" }
+$TAG_SUFFIX = If ($IncludeGoCD) { "_gocd" } Else { "" }
+
+Function createBuildConfig {
+  Param(
+    [Parameter(Mandatory=$true)]
+    [string] $year
+  )
+  Process {
+    return @(
+      [pscustomobject]@{
+        PSTypeName = "BuildConfig";
+        description = "32-bit ${year}";
+        bitness = "-x86";
+        target = "labview_base${TARGET_SUFFIX}";
+        tagname = "labview_${year}_daqmx${TAG_SUFFIX}"
+      }
+      [pscustomobject]@{
+        PSTypeName = "BuildConfig";
+        description = "64-bit ${year}";
+        bitness = "";
+        target = "labview_base${TARGET_SUFFIX}";
+        tagname = "labview_${year}_64_daqmx${TAG_SUFFIX}"
+      }
+      [pscustomobject]@{
+        PSTypeName = "BuildConfig";
+        description = "${year} cRIO";
+        bitness = "-x86";
+        target = "labview_extended${TARGET_SUFFIX}";
+        tagname = "labview_${year}_daqmx_crio${TAG_SUFFIX}"
+      }
+    )
+  }
 }
 
-# Build the 32-bit LabVIEW image with cRIO support
-# This uses a cached build of the 32-bit image built above, so if parallelizing, still do this in series after the 32-bit build.
-$TARGET_LV32_CRIO = If ($IncludeGoCD -and !$SkipGoCDConnection) {'labview2019_extended_gocd'} Else {'labview2019_extended'}
-$LV32_CRIO_TAGNAME = If ($IncludeGoCD) {'labview_2019_daqmx_crio_gocd'} Else {'labview_2019_daqmx_crio'}
-$process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
-  "$CONTEXT_FLAG",`
-  "build",`
-  "-t $ORG_TAG_NAME/${LV32_CRIO_TAGNAME}:$TAG_VERSION",`
-  "-t $ORG_TAG_NAME/${LV32_CRIO_TAGNAME}:latest",`
-  "-f .\Dockerfile.2019_32bit",`
-  "--target $TARGET_LV32_CRIO",`
-  "--build-arg LABVIEW_SERIAL_NUMBER=$LABVIEW_SERIAL_NUMBER",`
-  "--build-arg GO_SERVER_URL=$GO_SERVER_URL",`
-  "."
+$configs = @(
+  [pscustomobject]@{year = "2019"; imageConfigs = createBuildConfig("2019") }
+  [pscustomobject]@{year = "2021"; imageConfigs = createBuildConfig("2021") }
 )
-If($process.ExitCode -ne '0') {
-  Write-Verbose ("Exiting because the cRIO image build returned a non-zero exit code (" + $process.ExitCode  + ").")
-  Exit $process.ExitCode
-}
 
-# Build the 64-bit LabVIEW image
-# This could be done at the same time as the above builds separately to speed up the process
-$TARGET_LV64_BASE = If ($IncludeGoCD -and !$SkipGoCDConnection) {'labview2019_64_gocd'} Else {'labview2019_base_64'}
-$LV64_BASE_TAGNAME = If ($IncludeGoCD) {'labview_2019_64_daqmx_gocd'} Else {'labview_2019_64_daqmx'}
-$process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
-  "$CONTEXT_FLAG",`
-  "build",`
-  "-t $ORG_TAG_NAME/${LV64_BASE_TAGNAME}:$TAG_VERSION",`
-  "-t $ORG_TAG_NAME/${LV64_BASE_TAGNAME}:latest",`
-  "-f .\Dockerfile.2019_64bit",`
-  "--target $TARGET_LV64_BASE",`
-  "--build-arg LABVIEW_SERIAL_NUMBER=$LABVIEW_SERIAL_NUMBER",`
-  "--build-arg GO_SERVER_URL=$GO_SERVER_URL",`
-  "."
-)
-If($process.ExitCode -ne '0') {
-  Write-Verbose ("Exiting because the 64-bit image build returned a non-zero exit code (" + $process.ExitCode  + ").")
-  Exit $process.ExitCode
+# Years are in parallel - images within a target year are in series
+$configs | ForEach-Object -Parallel {
+  ForEach ($config in $_.imageConfigs) {
+    $tagname = "$using:ORG_TAG_NAME/$($config.tagname)"
+    Write-Host ("Building the $($config.description) image (tagname: $tagname)")
+    $process = (Start-Process -Wait -PassThru docker  -ArgumentList `
+      "$using:CONTEXT_FLAG",`
+      "build",`
+      "-t ${tagname}:$using:TAG_VERSION",`
+      "-t ${tagname}:latest",`
+      "-f .\Dockerfile.general",`
+      "--target $($config.target)",`
+      "--build-arg LABVIEW_SERIAL_NUMBER=$using:LABVIEW_SERIAL_NUMBER",`
+      "--build-arg GO_SERVER_URL=$using:GO_SERVER_URL",`
+      "--build-arg year=$($_.year)",`
+      "--build-arg bitness=`"$($config.bitness)`"",`
+      "."
+    )
+    If($process.ExitCode -ne '0') {
+      Write-Error ("Exiting because the $($config.description) image build returned a non-zero exit code (" + $process.ExitCode  + ").")
+      Exit $process.ExitCode
+    } Else {
+      Write-Host ("Finished building the $($config.description) image (tagname: $tagname)")
+    }
+  }
 }

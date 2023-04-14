@@ -1,6 +1,13 @@
 # Download the real daqmx-runtime-core package
 # The version would not be necessary if this is executed before adding fake packages with higher version numbers.
-$DAQMX_CORE_VERSION="19.5.0.49152-0+f0"
+[CmdletBinding(PositionalBinding=$false)]
+Param(
+  [ValidateSet("2019", "2021")]
+  [string] $year
+)
+
+# These versions need to be available in the feeds added by the AddFeeds PowerShell script.
+$DAQMX_CORE_VERSION = If ($year -eq "2019") { "19.5.0.49152-0+f0" } Else { "21.0.0.49316-0+f164" }
 nipkg.exe download --no-dependency-check ni-daqmx-runtime-core=$DAQMX_CORE_VERSION
 $DAQMX_CORE_PKG = Get-ChildItem -Include "ni-daqmx-runtime-core_*" -Name;
 
