@@ -44,7 +44,7 @@ If (! $GO_SERVER_URL) {
 # Set up variables for the tag names. 
 # A 'latest' tag is also added (this is convenient for 'auto-updating' on the build system without changes to configuration),
 # but if you don't want a latest tag, you can remove that part from each build line
-$ORG_TAG_NAME='oist'
+$ORG_TAG_NAME='fmu.unit.oist.jp/oist'
 $TAG_VERSION=(Get-Date -Format 'yyMMdd')
 
 $CONTEXT_FLAG = If ($Context) {"-c $Context"} Else {" "}
@@ -94,6 +94,12 @@ Function createBuildConfig {
         bitness = "-x86";
         target = "labview_extended${TARGET_SUFFIX}";
         tagname = "labview_${year}_daqmx_crio${TAG_SUFFIX}"
+      }
+      [pscustomobject]@{
+        PSTypeName = "BuildConfig";
+        description = "${year} FPGA";
+        bitness = "-x86";
+        target = "labview_fpga${TAG_SUFFIX}"
       }
     )
   }

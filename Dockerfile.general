@@ -173,11 +173,26 @@ COPY activateLabVIEW_RT.ps1 .
 RUN .\activateLabVIEW_RT.ps1 -Version "$(If (${env:year} -eq '2019') { '19.0000' } Else { '21.0000' })" -SerialNumber $env:LABVIEW_SERIAL_NUMBER; `
 	Remove-Item activateLabVIEW_RT.ps1
 
+FROM labview_extended AS labview_fpga
+ARG year
+ARG bitness
 # Add the FPGA module?
-#RUN nipkg.exe install --accept-eulas -y `
-#ni-labview-2019-fpga-module-x86-en
+RUN nipkg.exe install --accept-eulas -y `
+ni-labview-${env:year}-fpga-module${env:bitness}-en
 
 FROM labview_extended AS labview_extended_gocd
+# Allow the startup of ssh-agent in the image without enabling every run.
+RUN Get-Service ssh-agent | Set-Service -StartupType Manual
+
+# This is placed at the bottom to allow more easily rebuilding without reinstalling all of LabVIEW.
+COPY go-agent.ps1 .
+ARG GO_SERVER_URL="http://172.25.224.1:8153/go"
+RUN $ProgressPreference = 'SilentlyContinue';`
+	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent') -OutFile 'agent.jar';`
+	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent-plugins.zip') -OutFile 'agent-plugins.zip';`
+	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/tfs-impl.jar') -OutFile 'tfs-impl.jar'
+
+FROM labview_fpga AS labview_fpga_gocd
 # Allow the startup of ssh-agent in the image without enabling every run.
 RUN Get-Service ssh-agent | Set-Service -StartupType Manual
 
