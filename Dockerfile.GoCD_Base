@@ -1,5 +1,5 @@
 # escape=`
-FROM mcr.microsoft.com/windows/servercore:ltsc2025
+FROM mcr.microsoft.com/windows/servercore:20H2
 LABEL maintainer="Christian Butcher <christian.butcher@oist.jp>"
 
 # Download NIPM. The URL can be passed as an argument.
