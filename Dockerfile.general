@@ -161,7 +161,7 @@ ni-compactrio-c-series-labview-${env:year}-support${env:bitness} `
 ni-compactrio-labview-${env:year}-support${env:bitness} ;`
 if( $LASTEXITCODE.Equals(-125071) ) { `
 	# Needs restart 
-	Write-Output 'Exiting successfully' `
+	Write-Output 'Exiting successfully!' `
 	exit 0 `
 } else { `
 	exit $LASTEXITCODE `
@@ -172,13 +172,6 @@ ARG LABVIEW_SERIAL_NUMBER
 COPY activateLabVIEW_RT.ps1 .
 RUN .\activateLabVIEW_RT.ps1 -Version "$(If (${env:year} -eq '2019') { '19.0000' } Else { '21.0000' })" -SerialNumber $env:LABVIEW_SERIAL_NUMBER; `
 	Remove-Item activateLabVIEW_RT.ps1
-
-FROM labview_extended AS labview_fpga
-ARG year
-ARG bitness
-# Add the FPGA module?
-RUN nipkg.exe install --accept-eulas -y `
-ni-labview-${env:year}-fpga-module${env:bitness}-en
 
 FROM labview_extended AS labview_extended_gocd
 # Allow the startup of ssh-agent in the image without enabling every run.
@@ -191,6 +184,13 @@ RUN $ProgressPreference = 'SilentlyContinue';`
 	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent') -OutFile 'agent.jar';`
 	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/agent-plugins.zip') -OutFile 'agent-plugins.zip';`
 	Invoke-WebRequest ($env:GO_SERVER_URL + '/admin/tfs-impl.jar') -OutFile 'tfs-impl.jar'
+
+FROM labview_extended AS labview_fpga
+ARG year
+ARG bitness
+# Add the FPGA module?
+RUN nipkg.exe install --accept-eulas -y `
+ni-labview-${env:year}-fpga-module${env:bitness}-en
 
 FROM labview_fpga AS labview_fpga_gocd
 # Allow the startup of ssh-agent in the image without enabling every run.
