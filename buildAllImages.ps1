@@ -44,7 +44,9 @@ If (! $GO_SERVER_URL) {
 # Set up variables for the tag names. 
 # A 'latest' tag is also added (this is convenient for 'auto-updating' on the build system without changes to configuration),
 # but if you don't want a latest tag, you can remove that part from each build line
-$ORG_TAG_NAME='fmu.unit.oist.jp/oist'
+#$ORG_TAG_NAME='fmu.unit.oist.jp/oist'
+$ORG_TAG_NAME='oist'
+$PUSH_AFTER_BUILD=0
 $TAG_VERSION=(Get-Date -Format 'yyMMdd')
 
 $CONTEXT_FLAG = If ($Context) {"-c $Context"} Else {" "}
@@ -62,6 +64,17 @@ $process = (Start-Process -Wait -PassThru docker -NoNewWindow -ArgumentList `
 If($process.ExitCode -ne '0') {
   Write-Verbose ("Exiting because the base image build returned a non-zero exit code (" + $process.ExitCode  + ").")
   Exit $process.ExitCode
+}
+If($PUSH_AFTER_BUILD) {
+  $push_proc = (Start-Process -Wait -PassThru docker -ArgumentList "push", "$ORG_TAG_NAME/nipm_base:$TAG_VERSION")
+  If($push_proc.ExitCode -eq  '0') {
+    $push_proc = (Start-Process -Wait -PassThru docker -ArgumentList "push", "$ORG_TAG_NAME/nipm_base:latest")
+  }
+  If ($push_proc.ExitCode -ne '0') {
+    Write-Host ("Failed to push images for nipm_base (exit code: $push_proc.ExitCode)")
+  } Else {
+    Write-Host -ForegroundColor Green ("Pushed nipm_base successfully!")
+  }
 }
 
 $TARGET_SUFFIX = If ($IncludeGoCD -and !$SkipGoCDConnection) { "_gocd" } Else { "" }
@@ -99,7 +112,8 @@ Function createBuildConfig {
         PSTypeName = "BuildConfig";
         description = "${year} FPGA";
         bitness = "-x86";
-        target = "labview_fpga${TAG_SUFFIX}"
+        target = "labview_fpga${TAG_SUFFIX}";
+        tagname = "labview_${year}_fpga${TAG_SUFFIX}"
       }
     )
   }
@@ -114,6 +128,7 @@ $configs = @(
 $configs | ForEach-Object -Parallel {
   ForEach ($config in $_.imageConfigs) {
     $tagname = "$using:ORG_TAG_NAME/$($config.tagname)"
+    $PUSH_AFTER_BUILD = "$using:PUSH_AFTER_BUILD"
     Write-Host ("Building the $($config.description) image (tagname: $tagname)")
     $process = (Start-Process -Wait -PassThru docker  -ArgumentList `
       "$using:CONTEXT_FLAG",`
@@ -133,6 +148,17 @@ $configs | ForEach-Object -Parallel {
       Exit $process.ExitCode
     } Else {
       Write-Host ("Finished building the $($config.description) image (tagname: $tagname)")
+      If($PUSH_AFTER_BUILD) {
+        $push_proc = (Start-Process -Wait -PassThru docker -ArgumentList "push", "${tagname}:$using:TAG_VERSION")
+        If($push_proc.ExitCode -eq  '0') {
+          $push_proc = (Start-Process -Wait -PassThru docker -ArgumentList "push", "${tagname}:latest")
+        }
+        If ($push_proc.ExitCode -ne '0') {
+          Write-Host ("Failed to push images for $tagname (exit code: $push_proc.ExitCode)")
+        } Else {
+          Write-Host -ForegroundColor Green ("Pushed $tagname successfully!")
+        }
+      }
     }
   }
 }
