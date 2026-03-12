@@ -19,7 +19,7 @@ RUN powershell.exe "setx PATH \"%PATH%;C:\Program Files\National Instruments\NI 
 RUN nipkg.exe set-config nipkg.cachepackages=false
 
 # Add 7zip
-ARG 7z_Url="https://www.7-zip.org/a/7z2107-x64.exe"
+ARG 7z_Url="https://www.7-zip.org/a/7z2600-x64.exe"
 RUN powershell.exe -Command `
 	$ProgressPreference = 'SilentlyContinue'; `
 	$ErrorActionPreference = 'Stop'; `
@@ -29,7 +29,7 @@ RUN powershell.exe -Command `
 RUN powershell.exe "setx PATH \"%PATH%;C:\7zip\""
 
 # Add Git
-ARG Git_Url_Portable="https://github.com/git-for-windows/git/releases/download/v2.37.2.windows.2/PortableGit-2.37.2.2-64-bit.7z.exe"
+ARG Git_Url_Portable="https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/PortableGit-2.53.0.2-64-bit.7z.exe"
 RUN powershell.exe -Command `
 	$ProgressPreference = 'SilentlyContinue'; `
 	$ErrorActionPreference = 'Stop'; `
@@ -39,7 +39,7 @@ RUN powershell.exe -Command `
 RUN powershell.exe "setx PATH \"%PATH%;C:\git\bin;C:\git\usr\bin;C:\git\mingw64\bin""
 
 # Add Powershell 7 (pwsh.exe)
-ARG PWSH_Url_Zip="https://github.com/PowerShell/PowerShell/releases/download/v7.2.5/PowerShell-7.2.5-win-x64.zip"
+ARG PWSH_Url_Zip="https://github.com/PowerShell/PowerShell/releases/download/v7.5.4/PowerShell-7.5.4-win-x64.zip"
 RUN powershell.exe -Command `
 	$ProgressPreference = 'SilentlyContinue'; `
 	$ErrorActionPreference = 'Stop'; `
