@@ -192,6 +192,12 @@ ARG bitness
 RUN nipkg.exe install --accept-eulas -y `
 ni-labview-${env:year}-fpga-module${env:bitness}-en
 
+# Activate FPGA module
+ARG LABVIEW_SERIAL_NUMBER
+COPY activateLabVIEW_FPGA.ps1 .
+RUN .\activateLabVIEW_FPGA.ps1 -Version "$(If (${env:year} -eq '2019') { '19.0000' } Else { '21.0000' })" -SerialNumber $env:LABVIEW_SERIAL_NUMBER; `
+	Remove-Item activateLabVIEW_FPGA.ps1
+
 FROM labview_fpga AS labview_fpga_gocd
 # Allow the startup of ssh-agent in the image without enabling every run.
 RUN Get-Service ssh-agent | Set-Service -StartupType Manual
